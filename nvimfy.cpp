@@ -125,3 +125,25 @@ void NVimfy::m_append(std::string& line){
   lines.push_back(line);
 }
 
+void NVimfy::up(){
+  if(y > 0){
+    --y;
+  }
+
+  if(x >= lines[y].length()){
+    x = lines[y].length();
+  }
+  move(y, x);
+}
+
+void NVimfy::left(){
+
+}
+
+void NVimfy::right(){
+
+}
+
+void NVimfy::down(){
+
+}
