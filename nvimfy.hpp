@@ -8,7 +8,7 @@
 
 class NVimfy {
 
-  int x, y;
+  size_t x, y;
   char mode;
 
   std::string filename, status;

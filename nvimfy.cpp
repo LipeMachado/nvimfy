@@ -55,6 +55,21 @@ void NVimfy::statusline(){
 }
 
 void NVimfy::input(int c){
+  switch (c){
+    case KEY_UP:
+      up();
+      return;
+    case KEY_LEFT:
+      left();
+      return;
+    case KEY_RIGHT:
+      right();
+      return;
+    case KEY_DOWN:
+      down();
+      return;
+  }
+
   switch (mode){
     case 27:
     case 'n':
@@ -70,6 +85,7 @@ void NVimfy::input(int c){
           mode = 'w';
           break;
       }
+    break;
     case 'i':
       switch(c){
         case 27:
@@ -81,10 +97,36 @@ void NVimfy::input(int c){
             x = lines[y - 1].length();
             lines[y - 1] += lines[y];
             m_remove(y);
-            // TODO moveup
+            up();
           }else if( x > 0 ){
             lines[y].erase(--x, 1);
           }
+        break;
+        case KEY_DC:
+          if( x == lines[y].length() && y != lines.size() - 1 ){
+            lines[y] += lines[y + 1];
+          } else {
+            lines[y].erase(x, 1);
+          }
+        break;
+        case KEY_ENTER:
+        case 10:
+          if(x < lines[y].length()){
+            m_insert(lines[y].substr(x, lines[y].length() - x), y + 1);
+            lines[y].erase(x, lines[y].length() - x);
+          } else {
+            m_insert("", y + 1);
+          }
+          x = 0;
+          down();
+        break;
+        case KEY_BTAB:
+        case KEY_CTAB:
+        case KEY_STAB:
+        case KEY_CATAB:
+        case 9:
+          lines[y].insert(x, 2, ' ');
+          x += 2;
         break;
         default:
           lines[y].insert(x, 1, c);
@@ -94,7 +136,7 @@ void NVimfy::input(int c){
 }
 
 void NVimfy::print(){
-  for (size_t i {}; i < (size_t)LINES - 1; ++i){
+  for (size_t i = 0; i < (size_t)LINES - 1; ++i){
     if(i >= lines.size()){
       move(i, 0);
       clrtoeol();
@@ -137,13 +179,25 @@ void NVimfy::up(){
 }
 
 void NVimfy::left(){
-
+  if(x > 0){
+    --x;
+    move(y, x);
+  }
 }
 
 void NVimfy::right(){
-
+  if(x <= COLS && x <= lines[y].length() - 1){
+    ++x;
+    move(y, x);
+  }
 }
 
 void NVimfy::down(){
-
+  if(x < LINES && y < lines.size() - 1){
+    ++y;
+  }
+  if(x >= lines[y].length()){
+    x = lines[y].length();
+  }
+  move(y, x);
 }
