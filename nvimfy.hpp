@@ -11,7 +11,7 @@ class NVimfy {
   size_t x, y;
   char mode;
 
-  std::string filename, status;
+  std::string filename, status, section;
   std::vector<std::string> lines;
 
   void m_remove(int);

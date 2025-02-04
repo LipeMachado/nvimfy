@@ -6,6 +6,7 @@ NVimfy::NVimfy(const std::string& file){
   x = y = 0;
   mode = 'n';
   status = "NORMAL";
+  section = {};
 
   if(file.empty()){
     filename = "untitled";
@@ -17,6 +18,7 @@ NVimfy::NVimfy(const std::string& file){
   noecho();
   cbreak();
   keypad(stdscr, true);
+  use_default_colors();
 }
 
 NVimfy::~NVimfy(){
@@ -36,7 +38,6 @@ void NVimfy::run(){
 
 void NVimfy::update(){
   switch (mode){
-    case 27:
     case 'n':
       status = "NORMAL";
       break;
@@ -46,11 +47,30 @@ void NVimfy::update(){
     case 'q':
       break;
   }
+
+  section = " COLS: " + std::to_string(x) + " | ROWS: " + std::to_string(y) + " | FILE: " + filename;
+  status.insert(0, " ");
 }
 
 void NVimfy::statusline(){
+  start_color();
+  if(mode == 'n'){
+    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
+  }else{
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+  }
+
   attron(A_REVERSE);
+  attron(A_BOLD);
+  attron(COLOR_PAIR(1));
+
+  for(int i {}; i< COLS; ++i){
+    mvprintw(LINES - 1, i, " ");
+  }
   mvprintw(LINES - 1, 0, status.c_str());
+  mvprintw(LINES -1, COLS - section.length(), &section[0]);
+  attroff(COLOR_PAIR(1));
+  attroff(A_BOLD);
   attroff(A_REVERSE);
 }
 
@@ -74,7 +94,6 @@ void NVimfy::input(int c){
     case 27:
     case 'n':
       switch (c){
-        case 27:
         case 'q':
           mode = 'q';
           break;
@@ -186,14 +205,14 @@ void NVimfy::left(){
 }
 
 void NVimfy::right(){
-  if(x <= COLS && x <= lines[y].length() - 1){
+  if((int)x <= COLS && x <= lines[y].length() - 1){
     ++x;
     move(y, x);
   }
 }
 
 void NVimfy::down(){
-  if(x < LINES && y < lines.size() - 1){
+  if((int)x < LINES && y < lines.size() - 1){
     ++y;
   }
   if(x >= lines[y].length()){
