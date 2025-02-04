@@ -14,6 +14,8 @@ NVimfy::NVimfy(const std::string& file){
     filename = file;
   }
 
+  open();
+
   initscr();
   noecho();
   cbreak();
@@ -102,6 +104,12 @@ void NVimfy::input(int c){
           break;
         case 'w':
           mode = 'w';
+          save();
+          refresh();
+          endwin();
+          std::printf("Saved!\n");
+          exit(0);
+          // TODO save withot exit
           break;
       }
     break;
@@ -219,4 +227,36 @@ void NVimfy::down(){
     x = lines[y].length();
   }
   move(y, x);
+}
+
+void NVimfy::open(){
+  if(std::filesystem::exists(filename)){
+    std::ifstream ifile(filename);
+    if(ifile.is_open()){
+      while(!ifile.eof()){
+        std::string buffer;
+        std::getline(ifile, buffer);
+        m_append(buffer);
+      }
+    }else{
+      throw std::runtime_error("Cannot open file. Permission denied.");
+    }
+  }else{
+    std::string str {};
+    m_append(str);
+  }
+}
+
+void NVimfy::save(){
+  std::ofstream ofile(filename);
+  if(ofile.is_open()){
+    for(size_t i {}; i < lines.size(); i++){
+      ofile << lines[i] << '\n';
+    }
+    ofile.close();
+  }else{
+    refresh();
+    endwin();
+    throw std::runtime_error("Cannot save file. Permission denied.");
+  }
 }

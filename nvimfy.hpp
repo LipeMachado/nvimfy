@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <filesystem>
+#include <fstream>
 
 class NVimfy {
 
@@ -34,4 +36,7 @@ class NVimfy {
     void left();
     void right();
     void down();
+
+    void open();
+    void save();
 };
